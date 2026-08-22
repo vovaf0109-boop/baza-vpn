@@ -1,6 +1,6 @@
 """add status check constraints
 
-Revision ID: 0003_add_status_check_constraints
+Revision ID: 0003_status_checks
 Revises: 0002_add_user_updated_at
 Create Date: 2026-08-22
 """
@@ -9,7 +9,7 @@ from collections.abc import Sequence
 
 from alembic import op
 
-revision: str = "0003_add_status_check_constraints"
+revision: str = "0003_status_checks"
 down_revision: str | None = "0002_add_user_updated_at"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None

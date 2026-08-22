@@ -51,7 +51,7 @@ Improved:
 - Subscription token is unique at DB level.
 - Payment provider transaction ID is unique at DB level.
 - Foreign keys are present.
-- Status columns now have DB check constraints through migration `0003_add_status_check_constraints`.
+- Status columns now have DB check constraints through migration `0003_status_checks`.
 - Concurrent mutation paths now use PostgreSQL row locks where current architecture needs serialization.
 
 Remaining risks:

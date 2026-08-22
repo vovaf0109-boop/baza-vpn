@@ -38,6 +38,9 @@ testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]
+markers = [
+    "integration: tests that exercise local external services such as Dockerized PostgreSQL",
+]
 
 [tool.ruff]
 line-length = 100
