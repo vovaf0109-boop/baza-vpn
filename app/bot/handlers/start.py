@@ -7,7 +7,6 @@ from app.bot import texts
 from app.bot.callbacks import CB
 from app.bot.keyboards.main import (
     how_it_works_keyboard,
-    main_reply_keyboard,
     trial_ready_keyboard,
     welcome_keyboard,
 )
@@ -96,8 +95,6 @@ async def start_trial(
         return
 
     await safe_edit(callback, texts.trial_ready(settings), trial_ready_keyboard())
-    if callback.message:
-        await callback.message.answer("Меню всегда внизу 👇", reply_markup=main_reply_keyboard())
     await callback.answer()
 
 

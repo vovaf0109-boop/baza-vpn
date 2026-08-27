@@ -5,6 +5,8 @@ from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import make_url
 
+from app.enums import VpnProviderName
+
 
 VALID_APP_ENVS = {"development", "test", "production"}
 SUPPORT_USERNAME_RE = re.compile(r"^[A-Za-z0-9_]{5,32}$")
@@ -35,6 +37,7 @@ class Settings(BaseSettings):
     subscription_base_url: str = ""
     happ_download_url: str = "https://www.happ.su/main"
     allowed_hosts: str = "localhost,127.0.0.1"
+    vpn_provider: str = VpnProviderName.MOCK.value
 
     app_name: str = "Baza VPN"
     trial_days: int = 7
@@ -74,6 +77,14 @@ class Settings(BaseSettings):
         if not stripped.startswith(("https://", "http://")):
             raise ValueError("URL must start with http:// or https://")
         return stripped
+
+    @field_validator("vpn_provider", mode="before")
+    @classmethod
+    def validate_vpn_provider(cls, value: str) -> str:
+        provider = str(value or VpnProviderName.MOCK.value).strip().lower()
+        if provider not in {item.value for item in VpnProviderName}:
+            raise ValueError("VPN_PROVIDER must be one of: mock, xray")
+        return provider
 
     @field_validator(
         "trial_days",

@@ -38,6 +38,17 @@ def test_invalid_support_username_is_rejected() -> None:
         Settings(support_username="../bad")
 
 
+def test_invalid_vpn_provider_is_rejected() -> None:
+    with pytest.raises(ValidationError):
+        Settings(vpn_provider="wireguard")
+
+
+def test_xray_vpn_provider_is_accepted() -> None:
+    settings = Settings(vpn_provider="xray")
+
+    assert settings.vpn_provider == "xray"
+
+
 def test_production_rejects_development_database_password() -> None:
     with pytest.raises(ValidationError):
         Settings(

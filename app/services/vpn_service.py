@@ -1,33 +1,19 @@
 import logging
-from typing import Protocol
+from uuid import uuid4
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, get_settings
+from app.enums import VpnCredentialStatus
 from app.exceptions import SubscriptionInactiveError, UserBlockedError
-from app.models import User, VpnServer
+from app.models import User, VpnCredential, VpnServer
+from app.repositories.user_repository import UserRepository
+from app.repositories.vpn_credential_repository import VpnCredentialRepository
 from app.repositories.vpn_server_repository import VpnServerRepository
+from app.services.vpn_providers import VpnProvider, create_vpn_provider
 from app.services.subscription_service import SubscriptionService
 
 logger = logging.getLogger(__name__)
-
-
-class VpnProvider(Protocol):
-    async def render_subscription(self, token: str, servers: list[VpnServer]) -> str:
-        """Собрать payload для клиента. Реализацию можно заменить."""
-
-
-class MockVpnProvider:
-    """Заглушка: не привязана к протоколу. Позже заменить на реальный провайдер."""
-
-    async def render_subscription(self, token: str, servers: list[VpnServer]) -> str:
-        lines = [
-            "# Baza VPN",
-            "# Подписка активна. Реальные серверы появятся после подключения VPN-провайдера.",
-        ]
-        if servers:
-            lines.append(f"# Доступно локаций: {len(servers)}")
-        return "\n".join(lines) + "\n"
 
 
 class VpnService:
@@ -41,8 +27,9 @@ class VpnService:
         self.session = session
         self.settings = settings or get_settings()
         self.subscription_service = subscription_service
-        self.provider = provider or MockVpnProvider()
+        self.provider = provider or create_vpn_provider(self.settings)
         self._servers = VpnServerRepository(session)
+        self._credentials = VpnCredentialRepository(session)
 
     async def get_available_servers(self) -> list[VpnServer]:
         return await self._servers.list_available()
@@ -72,8 +59,12 @@ class VpnService:
             return None
 
         servers = await self.get_available_servers()
+        credentials = await self._ensure_credentials(user, servers)
+        if self.settings.vpn_provider == "xray" and servers and not credentials:
+            return None
         logger.info("vpn_subscription_requested user_id=%s", user.id)
-        return await self.provider.render_subscription(subscription.token, servers)
+        payload = await self.provider.render_subscription(user, servers, credentials, self.settings)
+        return payload or None
 
     async def get_connection_url(self, user: User) -> str:
         if user.is_blocked:
@@ -84,3 +75,28 @@ class VpnService:
         token = await self.subscription_service.get_or_create_token(user)
         logger.info("vpn_subscription_requested user_id=%s", user.id)
         return self.settings.subscription_url(token)
+
+    async def _ensure_credentials(
+        self,
+        user: User,
+        servers: list[VpnServer],
+    ) -> list[VpnCredential]:
+        if not servers:
+            return []
+
+        await UserRepository(self.session).lock_by_id(user.id)
+        credentials: list[VpnCredential] = []
+        for server in servers:
+            latest = await self._credentials.get_latest_by_user_server(user.id, server.id)
+            if latest is None:
+                latest = await self._credentials.add(
+                    VpnCredential(
+                        user_id=user.id,
+                        server_id=server.id,
+                        credential_id=str(uuid4()),
+                        status=VpnCredentialStatus.ACTIVE,
+                    )
+                )
+            if latest.status == VpnCredentialStatus.ACTIVE:
+                credentials.append(latest)
+        return credentials

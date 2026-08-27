@@ -39,6 +39,16 @@ class VpnServerStatus(StrEnum):
     DISABLED = "disabled"
 
 
+class VpnCredentialStatus(StrEnum):
+    ACTIVE = "active"
+    REVOKED = "revoked"
+
+
+class VpnProviderName(StrEnum):
+    MOCK = "mock"
+    XRAY = "xray"
+
+
 class PaymentProviderName(StrEnum):
     STUB = "stub"
     TELEGRAM_STARS = "telegram_stars"

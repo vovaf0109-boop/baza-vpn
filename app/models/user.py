@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from app.models.device import Device
     from app.models.payment import Payment
     from app.models.subscription import Subscription
+    from app.models.vpn_credential import VpnCredential
 
 
 class User(TimestampMixin, Base):
@@ -48,6 +49,7 @@ class User(TimestampMixin, Base):
     )
     devices: Mapped[list["Device"]] = relationship(back_populates="user")
     payments: Mapped[list["Payment"]] = relationship(back_populates="user")
+    vpn_credentials: Mapped[list["VpnCredential"]] = relationship(back_populates="user")
 
     @property
     def is_blocked(self) -> bool:

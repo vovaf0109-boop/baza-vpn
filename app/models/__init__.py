@@ -3,6 +3,7 @@ from app.models.device import Device
 from app.models.payment import Payment
 from app.models.subscription import Subscription
 from app.models.user import User
+from app.models.vpn_credential import VpnCredential
 from app.models.vpn_server import VpnServer
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     "Payment",
     "Subscription",
     "User",
+    "VpnCredential",
     "VpnServer",
 ]

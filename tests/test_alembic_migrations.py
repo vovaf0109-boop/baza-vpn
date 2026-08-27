@@ -57,6 +57,7 @@ def test_alembic_chain_is_linear_and_uses_short_status_revision() -> None:
         "0001_initial": None,
         "0002_add_user_updated_at": "0001_initial",
         "0003_status_checks": "0002_add_user_updated_at",
+        "0004_xray_provider": "0003_status_checks",
     }
 
 
@@ -156,7 +157,7 @@ def test_full_migration_chain_applies_to_postgresql16() -> None:
             text=True,
             stdout=subprocess.PIPE,
         ).stdout.strip()
-        assert version == "0003_status_checks"
+        assert version == "0004_xray_provider"
 
         constraint = subprocess.run(
             [
