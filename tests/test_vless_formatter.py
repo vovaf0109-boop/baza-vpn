@@ -29,6 +29,7 @@ def test_vless_formatter() -> None:
     assert parsed.username == "11111111-1111-4111-8111-111111111111"
     assert parsed.hostname == "nl.example.com"
     assert parsed.port == 443
+    assert query["encryption"] == ["none"]
     assert query["type"] == ["tcp"]
     assert query["security"] == ["reality"]
     assert query["sni"] == ["www.microsoft.com"]
@@ -37,6 +38,28 @@ def test_vless_formatter() -> None:
     assert query["sid"] == ["a1b2c3"]
     assert query["flow"] == ["xtls-rprx-vision"]
     assert unquote(parsed.fragment) == "Baza VPN - NL"
+
+
+def test_vless_formatter_omits_flow_when_disabled() -> None:
+    url = VlessConfigFormatter().format(
+        VlessConfig(
+            uuid="11111111-1111-4111-8111-111111111111",
+            host="de.example.com",
+            port=443,
+            name="Baza VPN - A 443 no-flow",
+            server_name="www.microsoft.com",
+            public_key="public-key",
+            short_id="a1b2c3",
+            flow=None,
+        )
+    )
+
+    query = parse_qs(urlparse(url).query)
+
+    assert "flow" not in query
+    assert query["encryption"] == ["none"]
+    assert query["type"] == ["tcp"]
+    assert query["security"] == ["reality"]
 
 
 def test_vless_url_encoding() -> None:
@@ -66,6 +89,7 @@ def test_vless_url_encoding() -> None:
         ("uuid", "not-a-uuid"),
         ("host", "bad host"),
         ("port", 0),
+        ("encryption", "aes-128-gcm"),
         ("transport", "ws"),
         ("security", "tls"),
         ("server_name", None),
@@ -79,6 +103,7 @@ def test_invalid_node_configuration(field: str, value: object) -> None:
         "host": "fr.example.com",
         "port": 443,
         "name": "Baza VPN - FR",
+        "encryption": "none",
         "transport": "tcp",
         "security": "reality",
         "server_name": "www.cloudflare.com",

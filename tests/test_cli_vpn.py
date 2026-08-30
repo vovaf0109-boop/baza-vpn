@@ -58,6 +58,7 @@ async def test_export_user_provisioning_json_contains_only_safe_data(
     assert payload["host"] == "nl.example.com"
     assert payload["port"] == 443
     assert payload["protocol"] == "vless"
+    assert payload["encryption"] == "none"
     assert payload["transport"] == "tcp"
     assert payload["security"] == "reality"
     assert payload["public_key"] == "public-key"

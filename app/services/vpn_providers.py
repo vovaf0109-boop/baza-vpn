@@ -32,6 +32,7 @@ class VlessConfig:
     host: str
     port: int
     name: str
+    encryption: str = "none"
     transport: str = "tcp"
     security: str = "reality"
     server_name: str | None = None
@@ -45,6 +46,7 @@ class VlessConfigFormatter:
     def format(self, config: VlessConfig) -> str:
         self._validate(config)
         query: dict[str, str] = {
+            "encryption": config.encryption,
             "type": config.transport,
             "security": config.security,
             "fp": config.fingerprint,
@@ -72,6 +74,8 @@ class VlessConfigFormatter:
             raise VpnProviderConfigurationError("invalid VPN server host")
         if config.port <= 0 or config.port > 65535:
             raise VpnProviderConfigurationError("invalid VPN server port")
+        if config.encryption != "none":
+            raise VpnProviderConfigurationError("unsupported VLESS encryption")
         if config.transport != "tcp":
             raise VpnProviderConfigurationError("unsupported VLESS transport")
         if config.security != "reality":

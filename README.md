@@ -209,3 +209,9 @@ python -m pytest -q
 ```
 
 Тесты используют in-memory SQLite, чтобы быстро проверять бизнес-логику без локального PostgreSQL. Production-код при этом рассчитан на PostgreSQL через `DATABASE_URL`.
+
+## VPN-ноды
+
+Первая Germany VPS — лабораторная нода. На ней проверяется матрица профилей A-D.
+Канонический шаблон для следующих нод и чеклист Happ: `docs/XRAY_NODE_TEMPLATE.md`.
+Ручной provisioning: `docs/XRAY_MANUAL_PROVISIONING.md`.

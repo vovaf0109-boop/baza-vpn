@@ -55,10 +55,13 @@ public_key
 server_name
 short_id
 fingerprint=chrome
-flow=xtls-rprx-vision
+flow=NULL for the canonical MVP profile (see docs/XRAY_NODE_TEMPLATE.md)
 enabled=true
 status=active
 ```
+
+For a new production node use `port=443` and no `flow`. Vision and port `8443`
+exist only on the laboratory Germany node as matrix cells B-D.
 
 The REALITY private key stays only on the Xray node or in secure secret storage. It is
 not stored in PostgreSQL by this MVP.
@@ -102,6 +105,7 @@ Example JSON shape with placeholders:
 {
   "credential_id": "11111111-1111-4111-8111-111111111111",
   "credential_status": "active",
+  "encryption": "none",
   "fingerprint": "chrome",
   "flow": "xtls-rprx-vision",
   "host": "nl.example.com",
@@ -145,6 +149,7 @@ Check manually that the node config matches Baza:
 ```text
 Baza host          == Xray public host
 Baza port          == Xray inbound port
+Baza VLESS URI     includes encryption=none
 Baza security      == reality
 Baza transport     == tcp
 Baza public_key    == client-side REALITY public key
@@ -169,9 +174,31 @@ The subscription endpoint returns working configs only when:
 - the credential is active;
 - the node public config is valid.
 
+## Laboratory Matrix
+
+The first Germany node is a laboratory node. It may publish four Happ profiles
+that change one variable at a time. The clone template for extra nodes is
+documented in `docs/XRAY_NODE_TEMPLATE.md`.
+
+| Code | Port | flow                 |
+|------|------|----------------------|
+| A    | 443  | none                 |
+| B    | 443  | xtls-rprx-vision     |
+| C    | 8443 | none                 |
+| D    | 8443 | xtls-rprx-vision     |
+
+Maintenance scripts:
+
+```text
+scripts/prepare_backend_test_matrix.py
+scripts/apply_xray_test_matrix.py
+scripts/disable_non_canonical_profiles.py
+```
+
 ## Three Node MVP
 
-Repeat the export and manual Xray client addition for each node:
+After the laboratory node has a confirmed profile, clone only that profile.
+Repeat the export and manual Xray client addition for each extra node:
 
 ```bash
 python -m app.cli vpn export-user --user-id 123 --server-id 1 --json

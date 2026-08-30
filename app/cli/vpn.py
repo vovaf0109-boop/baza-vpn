@@ -26,6 +26,7 @@ class ProvisioningData:
     credential_id: str
     credential_status: str
     protocol: str
+    encryption: str
     transport: str
     security: str
     public_key: str
@@ -44,6 +45,7 @@ class ProvisioningData:
             "credential_id": self.credential_id,
             "credential_status": self.credential_status,
             "protocol": self.protocol,
+            "encryption": self.encryption,
             "transport": self.transport,
             "security": self.security,
             "public_key": self.public_key,
@@ -143,6 +145,7 @@ def _build_provisioning_data(
         credential_id=credential.credential_id,
         credential_status=credential.status.value,
         protocol=server.protocol,
+        encryption="none",
         transport=server.transport,
         security=server.security,
         public_key=server.public_key,
@@ -170,6 +173,7 @@ def _validate_client_config(data: ProvisioningData) -> None:
                 host=data.host,
                 port=data.port,
                 name=data.server_name,
+                encryption=data.encryption,
                 transport=data.transport,
                 security=data.security,
                 server_name=data.server_name_sni,

@@ -105,6 +105,7 @@ The formatter supports the MVP parameters:
 - UUID client ID
 - host
 - port
+- `encryption=none`
 - `type=tcp`
 - `security=reality`
 - `sni`
@@ -137,7 +138,7 @@ Happ receives a plain text subscription response:
 ```text
 #profile-title: Baza VPN
 #support-url: https://t.me/baza_support
-vless://uuid@host:443?type=tcp&security=reality&sni=example.com&fp=chrome&pbk=public&sid=abc123&flow=xtls-rprx-vision#Baza%20VPN%20-%20NL
+vless://uuid@host:443?encryption=none&type=tcp&security=reality&sni=example.com&fp=chrome&pbk=public&sid=abc123&flow=xtls-rprx-vision#Baza%20VPN%20-%20NL
 ```
 
 Denied users receive no working configs:
@@ -147,6 +148,15 @@ Denied users receive no working configs:
 - blocked user: 404
 - revoked credentials only: 404
 - provider misconfiguration: 503 with a safe generic message
+
+The canonical public VLESS shape for a cloned node omits `flow`:
+
+```text
+vless://uuid@host:443?encryption=none&type=tcp&security=reality&sni=example.com&fp=chrome&pbk=public&sid=abc123#Baza%20VPN%20-%20DE
+```
+
+See `docs/XRAY_NODE_TEMPLATE.md` for the laboratory A-D matrix and the clone
+checklist.
 
 ## Three Nodes
 
